@@ -1,0 +1,11 @@
+config HCT_FINGERPRINT_SUPPORT
+  bool "HCT_FINGERPRINT_SUPPORT"
+  default n
+
+source "drivers/misc/mediatek/fingerprint/microarray_v4.0.01/Kconfig"
+
+source "drivers/misc/mediatek/fingerprint/fpsensor_ree/Kconfig"
+
+source "drivers/misc/mediatek/fingerprint/fpsensor_tee/Kconfig"
+
+source "drivers/misc/mediatek/fingerprint/sunwave_driver_all_in_one_ree/Kconfig"

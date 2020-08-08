@@ -1,0 +1,424 @@
+&i2c0 {
+	clock-frequency = <400000>;
+
+	cst1xx@10 {
+		compatible = "hynitron,cst1xx";
+		reg = <0x10>;
+		status = "ok";
+		interrupt-parent = <&pio>;
+		interrupts = <21 IRQ_TYPE_EDGE_FALLING 21 0>;
+		vtouch-supply = <&mt_pmic_vtp_ldo_reg>;
+		hynitron,vio18-gpio = <&pio 12 0x0>;
+		hynitron,rst-gpio = <&pio 20 0x0>;
+		hynitron,irq-gpio = <&pio 21 0x0>;
+		hynitron,panel-coords = <0 0 1080 2340>;
+	};
+
+	novatek@62 {
+		compatible = "novatek,NVT-ts";
+		reg = <0x62>;
+		status = "ok";
+		interrupt-parent = <&pio>;
+		interrupts = <21 IRQ_TYPE_EDGE_FALLING 21 0>;
+		vtouch-supply = <&mt_pmic_vtp_ldo_reg>;
+		novatek,reset-gpio = <&pio 20 0x0>;
+		novatek,irq-gpio = <&pio 21 0x0>;
+	};
+
+	synaptics_dsx@20 {
+		compatible = "synaptics,dsx-i2c";
+		reg = <0x20>;
+		interrupt-parent = <&pio>;
+		interrupts = <21 IRQ_TYPE_EDGE_FALLING 21 0>;
+		//vdd-supply = <&pm8994_lvs2>;
+		//avdd-supply = <&pm8994_l22>;
+		//pinctrl-names = "pmx_ts_active", "pmx_ts_suspend";
+		//pinctrl-0 = <&ts_active>;
+		//pinctrl-1 = <&ts_suspend>;
+		vtouch-supply = <&mt_pmic_vtp_ldo_reg>;
+		synaptics,pwr-reg-name = "vtouch";
+		//synaptics,bus-reg-name = "vdd";
+		synaptics,ub-i2c-addr = <0x2c>;
+		synaptics,irq-gpio = <&pio 21 0x0>;
+		synaptics,reset-gpio = <&pio 20 0x0>;
+		synaptics,irq-on-state = <0>;
+		synaptics,power-delay-ms = <200>;
+		synaptics,reset-delay-ms = <200>;
+		synaptics,reset-on-state = <0>;
+		synaptics,reset-active-ms = <20>;
+		/* uncomment and update line below as appropriate if there are 0D buttons */
+		/* synaptics,cap-button-codes = <102 158>; */
+		/* uncomment and update lines below as appropriate if there are virtual buttons */
+		/* synaptics,vir-button-codes = <102 100 900 100 60 158 300 900 100 60>; */
+		/* synaptics,max-y-for-2d = <800>; */
+	};
+
+
+};
+&i2c3 {
+#ifdef __HCT_LCD_BIAS_OCP2131_USE_I2C3__
+       lcd@ocp2131 {
+                  compatible = "mediatek,I2C_LCD_BIAS";
+                  reg = <0x3e>;
+                  status = "okay";
+       };
+#endif
+};
+&i2c6 {
+       fs16xx@0x34 {
+                       compatible = "mediatek,speaker_amp";
+                       reg = <0x34>;
+                       status = "okay";
+       };
+#ifndef __HCT_LCD_BIAS_OCP2131_USE_I2C3__
+       lcd@ocp2131 {
+                  compatible = "mediatek,I2C_LCD_BIAS";
+                  reg = <0x3e>;
+                  status = "okay";
+       };
+#endif
+};
+
+&i2c7 {
+#ifdef CONFIG_MTK_FLASHLIGHT_AW36428
+	flashlights_aw36428@63 {
+        compatible = "mediatek,flashlights_aw36428_i2c";
+        reg = <0x63>;
+        status = "okay";
+    };
+#endif
+};
+#ifdef CONFIG_HIMS_H532B_LCD
+&spi1 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+	cs-gpios = <&pio 157 0>;
+
+
+	h532b_spi1@0 {
+		compatible = "hims,h532b_lcd";
+
+		spi-cpha = <0>;
+		spi-cpol = <0>;
+		
+		hct-spi-lcm,gpio-rst-en = <&pio 108 0>;
+		hct-spi-lcm,gpio-spi-miso = <&pio 158 0>;
+		hct-spi-lcm,gpio-power-ldo-en = <&pio 144 0>;
+		hct-spi-lcm,gpio-power-lvshift-en = <&pio 79 0>;		
+		reg = <0>;
+		vslp-supply = <&mt_pmic_vfp_ldo_reg>;
+		spi-max-frequency = <10000000>;
+		status = "okay";
+	};
+
+};
+#endif
+
+#if CONFIG_HCT_FINGERPRINT_SUPPORT
+&spi1 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+	cs-gpios = <&pio 157 0>;
+
+#if defined(CONFIG_FINGERPRINT_CHIPONE_TEE) || defined(CONFIG_FINGERPRINT_CHIPONE_REE)
+	fingerprint@0 {
+		compatible = "mediatek,chipone_fp";
+		reg = <0>;
+		vfp-supply = <&mt_pmic_vfp_ldo_reg>;
+		spi-max-frequency = <8000000>;
+		status = "okay";
+	};
+#endif
+
+#if defined(CONFIG_FINGERPRINT_SUNWAVECORP) || defined(CONFIG_FINGERPRINT_SUNWAVECORP_NEW_REE)
+	fingerprint@0 {
+		compatible = "mediatek,sunwave-fp";
+		vfp-supply = <&mt_pmic_vfp_ldo_reg>;
+#ifdef	__HCT_FINGER_SUN_GOODIX_COMPATIBLE_SUPPORT__
+		reg = <1>;
+#else
+		reg = <0>;
+#endif
+		spi-max-frequency = <4000000>;
+		status = "okay";
+	};
+#endif
+
+};
+
+&hct_finger {
+	pinctrl-names = "default","finger_reset_en0","finger_reset_en1","finger_spi0_mi_as_spi0_mi","finger_spi0_mi_as_gpio",
+                          "finger_spi0_mo_as_spi0_mo","finger_spi0_mo_as_gpio","finger_spi0_clk_as_spi0_clk","finger_spi0_clk_as_gpio","finger_spi0_cs_as_spi0_cs",
+                          "finger_spi0_cs_as_gpio","finger_eint_pull_down","finger_eint_pull_up","finger_eint_pull_dis";
+	pinctrl-0 = <&finger_pins_default>;
+	pinctrl-1 = <&finger_reset_en0>;
+	pinctrl-2 = <&finger_reset_en1>;
+	pinctrl-3 = <&finger_spi0_mi_as_spi0_mi>;
+	pinctrl-4 = <&finger_spi0_mi_as_gpio>;
+	pinctrl-5 = <&finger_spi0_mo_as_spi0_mo>;
+	pinctrl-6 = <&finger_spi0_mo_as_gpio>;
+	pinctrl-7 = <&finger_spi0_clk_as_spi0_clk>;
+	pinctrl-8= <&finger_spi0_clk_as_gpio>;
+	pinctrl-9= <&finger_spi0_cs_as_spi0_cs>;
+	pinctrl-10= <&finger_spi0_cs_as_gpio>;
+	pinctrl-11= <&finger_eint_pull_down>;
+	pinctrl-12= <&finger_eint_pull_up>;
+	pinctrl-13= <&finger_eint_pull_dis>;
+
+};
+
+&hct_finger {
+	reset-gpio = <&pio __HCT_FINGERPRINT_RESET_PIN_NUM__ 0>;
+	int-gpio = <&pio __HCT_FINGERPRINT_EINT_EN_PIN_NUM__ 0>;
+	interrupt-parent = <&pio>;
+	interrupts = <__HCT_FINGERPRINT_EINT_EN_PIN_NUM__ IRQ_TYPE_EDGE_RISING __HCT_FINGERPRINT_EINT_EN_PIN_NUM__ 0>;
+	debounce = <__HCT_FINGERPRINT_EINT_EN_PIN_NUM__ 0>;
+	status = "okay";
+};
+
+#endif
+
+&pio {
+/*******************finger pin start ****************/
+#if CONFIG_HCT_FINGERPRINT_SUPPORT
+	finger_pins_default:finger_pins_default{
+	};
+	finger_reset_en0:finger_reset_en@0{
+		    pins_cmd_dat {
+			pinmux = <__HCT_FINGERPRINT_RESET_PIN__>;
+			slew-rate = <1>;
+			output-low;
+		};
+	};
+	finger_reset_en1:finger_reset_en@1{
+		    pins_cmd_dat {
+			pinmux = <__HCT_FINGERPRINT_RESET_PIN__>;
+			slew-rate = <1>;
+			output-high;
+		};
+	};
+	finger_spi0_mi_as_spi0_mi:finger_spi0_mi_as_spi0_mi@0{
+		    pins_cmd_dat {
+			pinmux = <PINMUX_GPIO158__FUNC_SPI1_A_MI>;
+			slew-rate = <0>;
+			bias-disable;
+			output-low;
+			input-schmitt-enable = <0>;
+		};
+	};
+	finger_spi0_mi_as_gpio:finger_spi0_mi_as_gpio@0{
+		    pins_cmd_dat {
+			pinmux = <PINMUX_GPIO158__FUNC_GPIO158>;
+			slew-rate = <0>;
+			output-low;
+			input-schmitt-enable = <0>;
+		};
+	};
+	finger_spi0_mo_as_spi0_mo:finger_spi0_mo_as_spi0_mo@0{
+		    pins_cmd_dat {
+			pinmux = <PINMUX_GPIO159__FUNC_SPI1_A_MO>;
+			slew-rate = <1>;
+			bias-disable;
+			output-low;
+			input-schmitt-enable = <0>;
+		};
+	};
+	finger_spi0_mo_as_gpio:finger_spi0_mo_as_gpio@0{
+		    pins_cmd_dat {
+			pinmux = <PINMUX_GPIO159__FUNC_GPIO159>;
+			slew-rate = <1>;
+			output-low;
+			input-schmitt-enable = <0>;
+		};
+	};
+	finger_spi0_clk_as_spi0_clk:finger_spi0_clk_as_spi0_clk@0{
+		    pins_cmd_dat {
+			pinmux = <PINMUX_GPIO156__FUNC_SPI1_A_CLK>;
+			slew-rate = <1>;
+			bias-disable;
+			output-low;
+			input-schmitt-enable = <0>;
+		};
+	};
+	finger_spi0_clk_as_gpio:finger_spi0_clk_as_gpio@0{
+		    pins_cmd_dat {
+			pinmux = <PINMUX_GPIO156__FUNC_GPIO156>;
+			slew-rate = <1>;
+			output-low;
+			input-schmitt-enable = <0>;
+		};
+	};
+	finger_spi0_cs_as_spi0_cs:finger_spi0_cs_as_spi0_cs@0{
+		    pins_cmd_dat {
+			pinmux = <PINMUX_GPIO157__FUNC_SPI1_A_CSB>;
+			slew-rate = <1>;
+			bias-disable;
+			output-low;
+			input-schmitt-enable = <0>;
+		};
+	};
+	finger_spi0_cs_as_gpio:finger_spi0_cs_as_gpio@0{
+		    pins_cmd_dat {
+			pinmux = <PINMUX_GPIO157__FUNC_GPIO157>;
+			slew-rate = <1>;
+			output-low;
+			input-schmitt-enable = <0>;
+		};
+	};
+
+	finger_eint_pull_down: finger_eint_en0 {
+		pins_cmd_dat {
+			pinmux = <__HCT_FINGERPRINT_EINT_PIN__>;
+			slew-rate = <0>;
+			bias-pull-down = <00>;
+		};
+	};
+	finger_eint_pull_up: finger_eint_en1 {
+		pins_cmd_dat {
+			pinmux = <__HCT_FINGERPRINT_EINT_PIN__>;
+			slew-rate = <0>;
+			bias-pull-up = <00>;
+		};
+	};
+	finger_eint_pull_dis:finger_eint_en2 {
+		pins_cmd_dat {
+			pinmux = <__HCT_FINGERPRINT_EINT_PIN__>;
+			slew-rate = <0>;
+			bias-disable;
+		};
+	};
+#endif
+};
+
+#if defined(CONFIG_FINGERPRINT_CHIPONE_TEE) || defined(CONFIG_FINGERPRINT_CHIPONE_REE)
+&pio {
+	fpdefault: fpdefault {
+	};
+	fpfinger_rst_high: fpsensor_rst_high {
+        pins_cmd_dat {
+			pinmux = <__HCT_FINGERPRINT_RESET_PIN__>;
+            slew-rate = <1>;
+            output-high;
+        };
+    };
+   fpfinger_rst_low: fpsensor_rst_low {
+	pins_cmd_dat {
+			pinmux = <__HCT_FINGERPRINT_RESET_PIN__>;
+	    slew-rate = <1>;
+	    output-low;
+	};
+    };
+
+	fpfinger_eint_as_int: fpsensor_eint {
+		pins_cmd_dat {
+			pinmux = <__HCT_FINGERPRINT_EINT_PIN__>;
+			slew-rate = <0>;
+			bias-disable;
+		};
+	};	
+	
+
+};
+
+&chipone_fp{
+	pinctrl-names = "fpdefault","fpsensor_rst_high","fpsensor_rst_low","fpsensor_eint";
+	pinctrl-0 = <&fpdefault>;
+	pinctrl-1 = <&fpfinger_rst_high>;
+	pinctrl-2 = <&fpfinger_rst_low>;
+	pinctrl-3 = <&fpfinger_eint_as_int>;
+};
+
+&chipone_fp{
+   interrupt-parent = <&pio>;
+   interrupts = <__HCT_FINGERPRINT_EINT_EN_PIN_NUM__ IRQ_TYPE_EDGE_RISING __HCT_FINGERPRINT_EINT_EN_PIN_NUM__ 0>;
+   debounce = <__HCT_FINGERPRINT_EINT_EN_PIN_NUM__ 0>;
+   status = "okay";
+};
+#endif
+
+#ifdef __HCT_CUSTOMKEY_F1_SUPPORT__
+	#if __HCT_CUSTOMKEY_F1_SUPPORT__
+
+&pio {
+	hct_customkey_pin_default:hct_customkey_default{
+	};
+
+	hct_customkey_pin_eint_as_int:hct_customkey_pin_def{
+	    pins_cmd_dat {
+			pinmux = <__HCT_INTERCOMKEY_EINT_PIN__>;
+			slew-rate = <0>;						/*direction 0:in, 1:out*/
+			//bias-pull-up= <00> ;
+			bias-disable;
+		};
+	};
+
+	hct_customkey2_pin_eint_as_int:hct_customkey2_pin_def{
+#ifdef __HCT_CUSTOMKEY_F2_SUPPORT__
+	#if __HCT_CUSTOMKEY_F2_SUPPORT__
+	    pins_cmd_dat {
+			pinmux = <__HCT_INTERCOMKEY2_EINT_PIN__>;
+			slew-rate = <0>;						/*direction 0:in, 1:out*/
+			//bias-pull-up= <00> ;
+			bias-disable;
+		};
+	#endif
+#endif
+	};
+
+	hct_customkey3_pin_eint_as_int:hct_customkey3_pin_def{
+#ifdef __HCT_CUSTOMKEY_F3_SUPPORT__
+	#if __HCT_CUSTOMKEY_F3_SUPPORT__
+	    pins_cmd_dat {
+			pinmux = <__HCT_INTERCOMKEY3_EINT_PIN__>;
+			slew-rate = <0>;						/*direction 0:in, 1:out*/
+			//bias-pull-up= <00> ;
+			bias-disable;
+		};
+	#endif
+#endif
+	};
+
+};
+&keypad{
+	pinctrl-names = "default", "hct_customkey_as_int", "hct_customkey2_as_int", "hct_customkey3_as_int";
+	pinctrl-0 = <&hct_customkey_pin_default>;
+	pinctrl-1 = <&hct_customkey_pin_eint_as_int>;
+	pinctrl-2 = <&hct_customkey2_pin_eint_as_int>;
+	pinctrl-3 = <&hct_customkey3_pin_eint_as_int>;
+
+	customkeyf1@__HCT_INTERCOMKEY_EINT_EN_PIN_NUM__ {
+		compatible = "mediatek,hct_customkey";
+		  interrupt-parent = <&pio>;
+		interrupts = <__HCT_INTERCOMKEY_EINT_EN_PIN_NUM__ IRQ_TYPE_EDGE_FALLING __HCT_INTERCOMKEY_EINT_EN_PIN_NUM__ 0>;
+		customkey_f1_gpio = <&pio __HCT_INTERCOMKEY_EINT_GPIO_NUM__ 0>;
+
+		debounce = <__HCT_INTERCOMKEY_EINT_EN_PIN_NUM__ 10>;
+	};
+#ifdef __HCT_CUSTOMKEY_F2_SUPPORT__
+	#if __HCT_CUSTOMKEY_F2_SUPPORT__
+	customkeyf2@__HCT_INTERCOMKEY2_EINT_EN_PIN_NUM__ {
+		compatible = "mediatek,hct_customkey2";
+		  interrupt-parent = <&pio>;
+		interrupts = <__HCT_INTERCOMKEY2_EINT_EN_PIN_NUM__ IRQ_TYPE_EDGE_FALLING __HCT_INTERCOMKEY2_EINT_EN_PIN_NUM__ 0>;
+		customkey_f2_gpio = <&pio __HCT_INTERCOMKEY2_EINT_GPIO_NUM__ 0>;
+
+		debounce = <__HCT_INTERCOMKEY2_EINT_EN_PIN_NUM__ 10>;
+	};
+	#endif
+#endif
+#ifdef __HCT_CUSTOMKEY_F3_SUPPORT__
+	#if __HCT_CUSTOMKEY_F3_SUPPORT__
+	customkeyf3@__HCT_INTERCOMKEY3_EINT_EN_PIN_NUM__ {
+		compatible = "mediatek,hct_customkey3";
+		  interrupt-parent = <&pio>;
+		interrupts = <__HCT_INTERCOMKEY3_EINT_EN_PIN_NUM__ IRQ_TYPE_EDGE_FALLING __HCT_INTERCOMKEY3_EINT_EN_PIN_NUM__ 0>;
+		customkey_f3_gpio = <&pio __HCT_INTERCOMKEY3_EINT_GPIO_NUM__ 0>;
+
+		debounce = <__HCT_INTERCOMKEY3_EINT_EN_PIN_NUM__ 10>;
+	};
+	#endif
+#endif
+};
+
+	#endif
+#endif

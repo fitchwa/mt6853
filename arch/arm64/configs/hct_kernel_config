@@ -1,0 +1,35 @@
+### hct_custom_config_begin
+
+##### lcm related
+CONFIG_DRM_PANEL_TRULY_TD4310_VDO=y
+CONFIG_LCM_HEIGHT="2160"
+CONFIG_LCM_WIDTH="1080"
+# CONFIG_LEDS_MTK_DISP is not set
+CONFIG_LEDS_MTK_PWM=y
+
+CONFIG_TOUCHSCREEN_MTK_TOUCH="synaptics_dsx"
+
+##### camera related
+CONFIG_CUSTOM_KERNEL_IMGSENSOR="imx586_mipi_raw s5k3p9sx_mipi_raw imx576_mipi_raw gc5035_mipi_raw s5k3m5sx_mipi_raw imx481_mipi_raw imx519_mipi_raw imx398_mipi_raw imx350_mipi_raw s5k2l7_mipi_raw imx386_mipi_raw imx386_mipi_mono s5k2t7sp_mipi_raw imx499_mipi_raw"
+
+
+##### fingerprint
+CONFIG_HCT_FINGERPRINT_SUPPORT=y
+CONFIG_FINGERPRINT_CHIPONE_REE=y
+
+#####PA speak
+# CONFIG_SND_SOC_MT6660 is not set
+# CONFIG_SND_SOC_MTK_AUDIO_DSP is not set
+# CONFIG_MTK_AUDIODSP_SUPPORT is not set
+
+#####PE charger
+CONFIG_MTK_PUMP_EXPRESS_PLUS_SUPPORT=y
+
+#####load switch charger
+CONFIG_LOAD_SWITCH_RT9750=y
+
+##### RGB led 
+CONFIG_MT6360_PMU_RGBLED=y
+
+
+### hct_custom_config_end

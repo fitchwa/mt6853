@@ -1,0 +1,9 @@
+config RICHTEK_PPS_DC
+	bool "Richtck programable power supply class for DC"
+	depends on USB_POWER_DELIVERY
+	default n
+	help
+	  Say Y to enable
+	  Richtek programable power supply class for DC
+	  Say N to disable
+	  Rihctek programable power supply class for DC
